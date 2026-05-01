@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import pool from './src/config/db.js';
 import userRoutes from './src/routes/userRoutes.js';
+import walletRoutes from './src/routes/walletRoutes.js';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ app.use(express.json())
 app.use(express.json());
 
 app.use('/api/users', userRoutes)
+app.use('/api/wallets', walletRoutes);
 
 const PORT = process.env.PORT || 5000;
 
