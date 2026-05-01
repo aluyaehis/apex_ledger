@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import pool from '../config/db';
+import pool from '../config/db.js';
 
 export const registerUser = async (req, res) => {
     const { full_name, email, password } = req.body;
