@@ -1,4 +1,7 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const verifyToken = (req, res, next) => {
     // 1. Get the header (try both uppercase and lowercase)
@@ -19,6 +22,7 @@ export const verifyToken = (req, res, next) => {
         req.user = verified;
         next();
     } catch (error) {
+        console.log("JWT Verification Error:", error.message);
         res.status(403).json({ message: 'Invalid or Expired Token' });
     }
 };
