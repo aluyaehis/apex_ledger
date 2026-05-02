@@ -1,5 +1,5 @@
 import express from 'express';
-import { getBalance, depositMoney, getTransactionHistory } from '../controllers/walletController.js';
+import { getBalance, depositMoney, getTransactionHistory, transferMoney } from '../controllers/walletController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -8,5 +8,6 @@ const router = express.Router();
 router.get('/balance', verifyToken, getBalance);
 router.post('/deposit', verifyToken, depositMoney);
 router.get('/history', verifyToken, getTransactionHistory);
+router.post('/transfer', verifyToken, transferMoney);
 
 export default router;
