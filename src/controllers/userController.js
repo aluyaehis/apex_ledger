@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 import jwt from 'jsonwebtoken';
 
 export const registerUser = async (req, res) => {
-    const { full_name, email, password } = req.body;
+    const { name, email, password } = req.body;
     try{
         
         //verifying if user already exists
@@ -20,17 +20,25 @@ export const registerUser = async (req, res) => {
 
         //inserting in the db
 
-        const [result] = await pool.query('INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)', [full_name, email, hashedPassword]);
+        const [result] = await pool.query('INSERT INTO users (full_name, email, password) VALUES (?, ?, ?)', [name, email, hashedPassword]);
 
         const userId = result.insertId;
 
         await pool.query('INSERT INTO wallets (user_id, balance, currency) VALUES (?, ?, ?)', [userId, 0.00, 'NGN']);
 
         res.status(201).json({ message: "User and wallet created successfully", userId: result.insertId });
-    }catch(err){
-        res.status(500).json({ message: "Server Error", error: err.message });
-    }
+    } catch (err) {
+    // 1. THIS IS THE MOST IMPORTANT LINE:
+    console.error("CRITICAL REGISTRATION ERROR:", err); 
+    
+    // 2. Return the exact error to the frontend so we can see it in Inspect -> Network
+    res.status(500).json({ 
+        message: "Server Error", 
+        error: err.message,
+        detail: err.code // This will give us codes like 'ER_NO_SUCH_TABLE'
+    });
 };
+}
 
 export const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -61,5 +69,29 @@ export const loginUser = async (req, res) => {
         })
     }catch(err){
         res.status(500).json({ message: "Server Error", error: err.message })
+    }
+};
+
+export const setTransactionPin = async (req, res) => {
+    const { pin } = req.body;
+    const userId = req.user.id;
+
+    // Validate PIN is 4 digits
+    if (!/^\d{4}$/.test(pin)) {
+        return res.status(400).json({ message: "PIN must be exactly 4 digits" });
+    }
+
+    try {
+        // Hash the PIN before saving
+        const hashedPin = await bcrypt.hash(pin, 10);
+        
+        await pool.query(
+            'UPDATE users SET transaction_pin = ? WHERE id = ?', 
+            [hashedPin, userId]
+        );
+
+        res.json({ message: "Transaction PIN set successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Error setting PIN", error: err.message });
     }
 };

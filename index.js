@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import pool from './src/config/db.js';
 import userRoutes from './src/routes/userRoutes.js';
 import walletRoutes from './src/routes/walletRoutes.js';
+import cors from 'cors';
 
 dotenv.config();
 
